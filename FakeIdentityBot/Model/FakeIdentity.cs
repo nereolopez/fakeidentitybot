@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace FakeIdentityBot
+﻿namespace FakeIdentityBot.Model
 {
     public class FakeIdentity
     {

@@ -120,7 +120,8 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
-    <Compile Include="FakeIdentity.cs" />
+    <Compile Include="IdentityClient\FakeIdentityClient.cs" />
+    <Compile Include="Model\FakeIdentity.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

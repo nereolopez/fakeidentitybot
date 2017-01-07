@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
-using Newtonsoft.Json;
 using System.Net.Http.Headers;
+using FakeIdentityBot.Model;
+using FakeIdentityBot.IdentityClient;
 
 namespace FakeIdentityBot
 {
@@ -23,12 +22,6 @@ namespace FakeIdentityBot
             if (activity.Type == ActivityTypes.Message)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                //// calculate something for us to return
-                //int length = (activity.Text ?? string.Empty).Length;
-
-                //// return our reply to the user
-                //Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
-                //await connector.Conversations.ReplyToActivityAsync(reply);
 
                 Activity reply;
 
@@ -36,28 +29,21 @@ namespace FakeIdentityBot
                 {
                     reply = activity.CreateReply($"You send an empty message. Were you trying to ask me for something?");
                 }
-                else
+                else if (activity.Text.ToUpper().Contains("HI") || activity.Text.ToUpper().Contains("HELLO"))
                 {
-                    using (var client = new HttpClient())
+                    reply = activity.CreateReply("Nice to see you ^^");
+                }
+                else {
+                    var client = new FakeIdentityClient();
+                    FakeIdentity fakeIdentity = await client.GetFakeIdentity(); 
+                    if (fakeIdentity != null)
                     {
-                        client.BaseAddress = new Uri("http://localhost:3979/");
-                        client.DefaultRequestHeaders.Accept.Clear();
-                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                        // New code:
-                        HttpResponseMessage identityResponse = await client.GetAsync("https://uinames.com/api/");
-                        if (identityResponse.IsSuccessStatusCode)
-                        {
-                            FakeIdentity fakeIdentity = await identityResponse.Content.ReadAsAsync<FakeIdentity>();
-                            reply = activity.CreateReply($"Your fake identity is {fakeIdentity.name} {fakeIdentity.surname}, a {fakeIdentity.gender} from {fakeIdentity.region}");
-                        }
-                        else
-                        {
-                            reply = activity.CreateReply("Sorry, I could not create a fake identity this time :(. It is so shameful...");
-                        }
+                        reply = activity.CreateReply($"Your fake identity is {fakeIdentity.name} {fakeIdentity.surname}, a {fakeIdentity.gender} from {fakeIdentity.region}");
                     }
-
-                    
+                    else
+                    {
+                        reply = activity.CreateReply("Sorry, I could not create a fake identity this time :(. It is so shameful...");
+                    }
                 }
 
                 await connector.Conversations.ReplyToActivityAsync(reply);
